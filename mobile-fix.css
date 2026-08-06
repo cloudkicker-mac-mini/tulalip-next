@@ -1,0 +1,11 @@
+main, .hero, .browse, #nextEvent, .next-card { min-width: 0; }
+.filters { width: 100%; max-width: 100%; }
+#nextEvent { width: auto; max-width: 760px; }
+.next-card { width: min(760px, calc(100vw - 40px)); }
+.hero > p { width: min(620px, calc(100vw - 40px)); overflow-wrap: anywhere; }
+.next-top { min-width: 0; gap: 12px; }
+.next-top .category { flex: 0 0 auto; }
+.calendar-note { color: #607572; font-size: .75rem; line-height: 1.45; margin: 12px 0 0; }
+.month-heading { margin: 28px 0 10px; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; color: #607572; }
+.month-events { display: grid; gap: 11px; }
+@media (min-width: 760px) { .month-events { grid-template-columns: 1fr 1fr; } }
