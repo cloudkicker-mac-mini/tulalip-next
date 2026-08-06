@@ -1,4 +1,4 @@
-const CACHE="tulalip-next-v1.1.1";
+const CACHE="tulalip-next-v1.2.0";
 const ASSETS=["./","./index.html","./styles.css","./mobile-fix.css","./events.js","./app.js","./manifest.webmanifest","./assets/icons/icon.svg","./assets/icons/icon-192.png","./assets/icons/icon-512.png","./assets/icons/icon-maskable-512.png"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

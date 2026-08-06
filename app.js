@@ -4,7 +4,7 @@
   const list = document.querySelector("#eventList"), next = document.querySelector("#nextEvent"), filters = document.querySelector("#filters"), typeFilters = document.querySelector("#typeFilters");
   const summary = document.querySelector("#resultsSummary"), empty = document.querySelector("#emptyState"), clear = document.querySelector("#clearFilters");
   const dialog = document.querySelector("#eventDialog"), content = document.querySelector("#dialogContent"), toast = document.querySelector("#toast");
-  let activeCategory = "All", activeType = "All types", deferredPrompt;
+  let activeCategory = "All", activeType = "All types", deferredPrompt, closeTimer, touchStartY = 0;
   const categories = ["All", ...new Set(events.map(e => e.category))];
   const types = ["All types", ...new Set(events.map(e => e.type))];
 
@@ -29,11 +29,20 @@
   function renderList(){ const shown=events.filter(e=>(activeCategory==="All"||e.category===activeCategory)&&(activeType==="All types"||e.type===activeType)); const groups=new Map();shown.forEach(event=>{const month=formatDate(event.start,{month:"long",year:"numeric"});if(!groups.has(month))groups.set(month,[]);groups.get(month).push(event);});const nodes=[];groups.forEach((items,month)=>{const heading=el("h3","month-heading",month);const group=el("div","month-events");group.append(...items.map(eventCard));nodes.push(heading,group);});list.replaceChildren(...nodes); summary.textContent=`${shown.length} ${shown.length===1?"item":"items"} from the newsletter`; empty.hidden=shown.length>0; clear.hidden=activeCategory==="All"&&activeType==="All types"; }
   function detailRow(label,value){const row=el("div","detail-row");row.append(el("span","",label),el("strong","",value));return row;}
   function safeLink(label,href){const a=el("a","detail-link",label);a.href=href;a.target="_blank";a.rel="noopener noreferrer";return a;}
+  function flyerButton(event){
+    const button=el("button","detail-link flyer-button","View original flyer"); button.type="button"; button.setAttribute("aria-expanded","false");
+    button.addEventListener("click",()=>{const viewer=document.querySelector("#flyerViewer");viewer.hidden=false;button.setAttribute("aria-expanded","true");button.textContent="Original flyer shown below";requestAnimationFrame(()=>viewer.scrollIntoView({behavior:"smooth",block:"start"}));});
+    return button;
+  }
   function openEvent(event){
     const head=el("div","dialog-head"); head.append(el("span","category",`${iconFor(event.category)} ${event.category}`),el("span","type",event.type));
     const title=el("h2","",event.title);title.id="dialogTitle"; content.replaceChildren(head,title,el("p","dialog-summary",event.summary));
     const details=el("div","detail-list"); details.append(detailRow("Date",event.dateLabel),detailRow("Time",event.timeLabel),detailRow("Location",event.location),detailRow("For",event.audience)); if(event.contact)details.append(detailRow("Contact",event.contact)); content.append(details);
-    const actions=el("div","dialog-actions"); actions.append(reminderButton(event)); if(event.email)actions.append(safeLink("Email organizer",`mailto:${event.email}`)); if(event.url)actions.append(safeLink("Official link",event.url)); actions.append(safeLink("Original newsletter",event.source)); content.append(actions,el("p","calendar-note","Calendar reminders are handled by your device after the event file opens."),el("p","verify-note","Prototype data extracted from a flyer. Please verify details with the organizer before attending.")); dialog.showModal(); if(location.hash!==`#${event.id}`)history.pushState({event:event.id},"",`#${event.id}`);
+    const actions=el("div","dialog-actions"); actions.append(reminderButton(event)); if(event.email)actions.append(safeLink("Email organizer",`mailto:${event.email}`)); if(event.url)actions.append(safeLink("Official link",event.url)); if(event.flyer)actions.append(flyerButton(event)); else actions.append(safeLink("View source newsletter",event.source));
+    content.append(actions,el("p","calendar-note","Calendar reminders are handled by your device after the event file opens."));
+    if(event.flyer){const viewer=el("section","flyer-viewer");viewer.id="flyerViewer";viewer.hidden=true;const image=el("img","flyer-image");image.src=event.flyer;image.alt=`Original flyer for ${event.title}`;image.loading="lazy";viewer.append(el("h3","","Original flyer"),image,safeLink("Open full-size image",event.flyer));content.append(viewer);}
+    content.append(el("p","verify-note","Prototype data extracted from a flyer. Please verify details with the organizer before attending."));
+    clearTimeout(closeTimer);dialog.classList.remove("is-closing");dialog.showModal();requestAnimationFrame(()=>dialog.classList.add("is-open"));if(location.hash!==`#${event.id}`)history.pushState({event:event.id},"",`#${event.id}`);
   }
   function escICS(value){return String(value||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");}
   function icsDate(value){return value.replace(/[-:]/g,"").slice(0,15);}
@@ -43,8 +52,10 @@
     const blob=new Blob([buildICS(event)],{type:"text/calendar;charset=utf-8"}), a=document.createElement("a"); a.href=URL.createObjectURL(blob);a.download=`${event.id}.ics`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000); showToast("Calendar event downloaded");
   }
   function showToast(message){toast.textContent=message;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2400);}
-  function closeDialog(){if(dialog.open)dialog.close();if(location.hash)history.replaceState({},"",location.pathname+location.search);}
-  clear.addEventListener("click",()=>{activeCategory="All";activeType="All types";renderFilters();renderList();}); document.querySelector("#dialogClose").addEventListener("click",()=>location.hash?history.back():closeDialog()); dialog.addEventListener("click",e=>{if(e.target===dialog)location.hash?history.back():closeDialog();}); dialog.addEventListener("cancel",e=>{e.preventDefault();location.hash?history.back():dialog.close();}); dialog.addEventListener("close",()=>{if(location.hash)history.replaceState({},"",location.pathname+location.search);}); window.addEventListener("popstate",()=>{if(!location.hash&&dialog.open)dialog.close();});
+  function closeDialog(){if(!dialog.open)return;dialog.classList.remove("is-open");dialog.classList.add("is-closing");clearTimeout(closeTimer);closeTimer=setTimeout(()=>{dialog.classList.remove("is-closing");dialog.close();},280);if(location.hash)history.replaceState({},"",location.pathname+location.search);}
+  function navigateClose(){location.hash?history.back():closeDialog();}
+  clear.addEventListener("click",()=>{activeCategory="All";activeType="All types";renderFilters();renderList();}); document.querySelector("#dialogClose").addEventListener("click",navigateClose); dialog.addEventListener("click",e=>{if(e.target===dialog)navigateClose();}); dialog.addEventListener("cancel",e=>{e.preventDefault();navigateClose();}); dialog.addEventListener("close",()=>{dialog.classList.remove("is-open","is-closing");if(location.hash)history.replaceState({},"",location.pathname+location.search);}); window.addEventListener("popstate",()=>{if(!location.hash&&dialog.open)closeDialog();});
+  dialog.addEventListener("touchstart",e=>{touchStartY=dialog.scrollTop===0?e.touches[0].clientY:0;},{passive:true});dialog.addEventListener("touchend",e=>{if(touchStartY&&e.changedTouches[0].clientY-touchStartY>90)navigateClose();touchStartY=0;},{passive:true});
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.querySelector("#installButton").hidden=false;}); document.querySelector("#installButton").addEventListener("click",async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}else showToast("Use your browser menu to add this app to your home screen");});
   window.TulalipICS={buildICS,foldLine}; if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js")); renderNext();renderFilters();renderList();
 })();

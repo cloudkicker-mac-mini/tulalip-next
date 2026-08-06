@@ -9,3 +9,21 @@ main, .hero, .browse, #nextEvent, .next-card { min-width: 0; }
 .month-heading { margin: 28px 0 10px; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; color: #607572; }
 .month-events { display: grid; gap: 11px; }
 @media (min-width: 760px) { .month-events { grid-template-columns: 1fr 1fr; } }
+
+/* Native-feeling event sheet and inline source flyer viewer. */
+dialog { transform: translateY(105%); opacity: .98; transition: transform .32s cubic-bezier(.22,1,.36,1), opacity .24s ease; overflow-y: auto; overscroll-behavior: contain; }
+dialog.is-open { transform: translateY(0); opacity: 1; }
+dialog.is-closing { transform: translateY(105%); opacity: .98; transition-timing-function: cubic-bezier(.4,0,1,1); }
+dialog::backdrop { background: rgba(3,29,27,0); backdrop-filter: blur(0); transition: background .3s ease, backdrop-filter .3s ease; }
+dialog.is-open::backdrop { background: rgba(3,29,27,.68); backdrop-filter: blur(3px); }
+.dialog-shell { padding-top: 34px; }
+.sheet-handle { position: absolute; top: 10px; left: 50%; width: 42px; height: 5px; border-radius: 999px; background: #c7d2cf; transform: translateX(-50%); }
+.dialog-close { top: 20px; }
+.detail-link { background: #fff; padding: 0 14px; }
+.flyer-button { color: #0b7067; font-weight: 850; width: 100%; }
+.flyer-viewer { scroll-margin-top: 18px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #d8e2df; }
+.flyer-viewer[hidden] { display: none; }
+.flyer-viewer h3 { margin: 0 0 12px; font-size: 1.1rem; }
+.flyer-image { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid #d8e2df; background: #eef3f1; margin-bottom: 10px; }
+@media (min-width: 760px) { dialog { transform: translateY(36px) scale(.98); } dialog.is-open { transform: translateY(0) scale(1); } dialog.is-closing { transform: translateY(36px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { dialog, dialog.is-open, dialog.is-closing { transform: none; } }
