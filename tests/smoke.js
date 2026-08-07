@@ -1,0 +1,7 @@
+const fs=require("fs"),vm=require("vm"),assert=require("assert"),path=require("path");const root=path.resolve(__dirname,"..");const read=f=>fs.readFileSync(path.join(root,f),"utf8");
+for(const file of["index.html","app.css","app.js","events.js","sw.js","manifest.webmanifest","assets/css/style.bundle.css","assets/js/scripts.bundle.js","assets/plugins/global/plugins.bundle.css","assets/plugins/global/plugins.bundle.js"])assert(fs.existsSync(path.join(root,file)),`missing ${file}`);
+const html=read("index.html"),js=read("app.js");for(const id of["searchInput","spotlight","eventList","timeFilters","categoryFilters","eventDrawer","planDrawer","planList"])assert(html.includes(`id="${id}"`),`missing #${id}`);
+assert(!html.includes("styles.css")&&!html.includes("mobile-fix.css")&&!html.includes("metronic-theme.css"),"legacy styles still loaded");
+assert(html.includes("assets/css/style.bundle.css")&&html.includes("assets/js/scripts.bundle.js"),"Metronic bundles missing");assert(js.includes("localStorage")&&js.includes("navigator.share")&&js.includes("buildICS"),"core interactions missing");
+const box={window:{}};vm.createContext(box);vm.runInContext(read("events.js"),box);assert.equal(box.window.TULALIP_EVENTS.length,12);for(const e of box.window.TULALIP_EVENTS)for(const k of["id","title","start","end","location","category","summary","source"])assert(e[k],`${e.id||"event"} missing ${k}`);
+console.log("Smoke checks passed: Metronic shell, 12 events, local assets, interaction hooks.");
