@@ -6,40 +6,54 @@
   <meta name="theme-color" content="#073f3b">
   <meta name="description" content="An unofficial mobile-first prototype for discovering upcoming Tulalip community events.">
   <title>Tulalip Next</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/plugins/global/plugins.bundle.css">
+  <link rel="stylesheet" href="./assets/css/style.bundle.css">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./mobile-fix.css">
+  <link rel="stylesheet" href="./metronic-theme.css">
 </head>
-<body>
+<body id="kt_body" class="app-default">
   <a class="skip-link" href="#events">Skip to events</a>
-  <header class="app-header">
-    <div class="brand"><span class="brand-mark" aria-hidden="true">TN</span><div><strong>Tulalip Next</strong><small>Community events, made useful</small></div></div>
-    <button class="install-button" id="installButton" hidden>Install</button>
+  <header class="app-header navbar navbar-expand-lg">
+    <div class="app-container container-xxl">
+      <a class="brand" href="#events" aria-label="Tulalip Next home"><span class="brand-mark" aria-hidden="true">TN</span><div><strong>Tulalip Next</strong><small>Community events, made useful</small></div></a>
+      <div class="header-actions">
+        <a class="header-link" href="#events"><i class="ki-outline ki-calendar-8" aria-hidden="true"></i><span>Events</span></a>
+        <button class="btn btn-sm btn-light install-button" id="installButton" hidden><i class="ki-outline ki-screen" aria-hidden="true"></i>Install</button>
+      </div>
+    </div>
   </header>
 
   <main>
     <section class="hero" aria-labelledby="heroTitle">
-      <div class="eyebrow">What’s happening next</div>
-      <h1 id="heroTitle">Know what’s coming.<br>Never miss it.</h1>
-      <p>Events and important dates from the Tulalip Today newsletter—organized by time, not buried in flyers.</p>
-      <div id="nextEvent"></div>
+      <div class="hero-grid container-xxl">
+        <div class="hero-copy">
+          <div class="eyebrow">What’s happening next</div>
+          <h1 id="heroTitle">Know what’s coming.<br>Never miss it.</h1>
+          <p>Events and important dates from the Tulalip Today newsletter—organized by time, not buried in flyers.</p>
+          <div class="hero-stats" aria-label="Prototype summary"><span><strong>12</strong> useful dates</span><span><strong>1</strong> community feed</span></div>
+        </div>
+        <div id="nextEvent"></div>
+      </div>
     </section>
 
     <section class="browse" id="events" aria-labelledby="eventsTitle">
-      <div class="section-heading"><div><span class="eyebrow">Explore</span><h2 id="eventsTitle">Coming up</h2></div><button class="text-button" id="clearFilters" hidden>Clear filters</button></div>
+      <div class="section-heading"><div><span class="eyebrow">Explore</span><h2 id="eventsTitle">Coming up</h2><p>Browse every event and important date in one place.</p></div><button class="btn btn-sm btn-light-primary text-button" id="clearFilters" hidden><i class="ki-outline ki-cross-circle" aria-hidden="true"></i>Clear filters</button></div>
       <div class="filters" id="filters" aria-label="Filter events"></div>
       <div class="filters type-filters" id="typeFilters" aria-label="Filter by item type"></div>
       <p class="results-summary" id="resultsSummary" aria-live="polite"></p>
       <div class="timeline" id="eventList"></div>
-      <div class="empty-state" id="emptyState" hidden><span aria-hidden="true">◌</span><h3>Nothing matches yet</h3><p>Try another category or clear the filter.</p></div>
+      <div class="empty-state card" id="emptyState" hidden><i class="ki-outline ki-search-list fs-3x text-muted" aria-hidden="true"></i><h3>Nothing matches yet</h3><p>Try another category or clear the filter.</p></div>
     </section>
 
-    <section class="about-card">
+    <section class="about-card card">
       <span class="eyebrow">Prototype notes</span>
       <h2>From flyers to a living calendar</h2>
       <p>This unofficial Lane &amp; Company prototype was built from one Tulalip Today newsletter. Event details may change—always verify against the original flyer or organizer.</p>
-      <a href="https://mailchi.mp/114402b34244/10282020-12852884?e=74366313f6" target="_blank" rel="noopener noreferrer">View source newsletter <span aria-hidden="true">↗</span></a>
+      <a class="btn btn-light-primary" href="https://mailchi.mp/114402b34244/10282020-12852884?e=74366313f6" target="_blank" rel="noopener noreferrer">View source newsletter <i class="ki-outline ki-exit-up" aria-hidden="true"></i></a>
     </section>
   </main>
 
@@ -48,11 +62,13 @@
   <dialog id="eventDialog" aria-labelledby="dialogTitle">
     <div class="dialog-shell">
       <div class="sheet-handle" aria-hidden="true"></div>
-      <button class="dialog-close" id="dialogClose" aria-label="Close event details">×</button>
+      <button class="dialog-close btn btn-icon btn-light" id="dialogClose" aria-label="Close event details"><i class="ki-outline ki-cross fs-2" aria-hidden="true"></i></button>
       <div id="dialogContent"></div>
     </div>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./assets/plugins/global/plugins.bundle.js"></script>
+  <script src="./assets/js/scripts.bundle.js"></script>
   <script src="./events.js"></script>
   <script src="./app.js"></script>
 </body>
