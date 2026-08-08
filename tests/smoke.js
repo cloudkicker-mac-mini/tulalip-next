@@ -3,5 +3,9 @@ for(const file of["index.html","app.css","app.js","events.js","sw.js","manifest.
 const html=read("index.html"),js=read("app.js");for(const id of["searchInput","spotlight","eventList","timeFilters","categoryFilters","eventDrawer","planDrawer","planList"])assert(html.includes(`id="${id}"`),`missing #${id}`);
 assert(!html.includes("styles.css")&&!html.includes("mobile-fix.css")&&!html.includes("metronic-theme.css"),"legacy styles still loaded");
 assert(html.includes("assets/css/style.bundle.css")&&html.includes("assets/js/scripts.bundle.js"),"Metronic bundles missing");assert(js.includes("localStorage")&&js.includes("navigator.share")&&js.includes("buildICS"),"core interactions missing");
+assert(js.includes('searchParams.set("event",e.id)')&&js.includes("eventFromUrl"),"event shares must use durable query URLs");
+assert(!js.includes("location.pathname}#${ev.id}"),"legacy hash-only share URL still present");
+assert(js.indexOf('id="flyerTitle"')<js.indexOf('${safe(e.summary)}'),"original flyer must precede secondary event details");
 const box={window:{}};vm.createContext(box);vm.runInContext(read("events.js"),box);assert.equal(box.window.TULALIP_EVENTS.length,12);for(const e of box.window.TULALIP_EVENTS)for(const k of["id","title","start","end","location","category","summary","source"])assert(e[k],`${e.id||"event"} missing ${k}`);
+for(const e of box.window.TULALIP_EVENTS)assert(e.flyer,`${e.id} missing original flyer`);
 console.log("Smoke checks passed: Metronic shell, 12 events, local assets, interaction hooks.");
