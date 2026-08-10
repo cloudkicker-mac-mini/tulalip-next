@@ -11,6 +11,7 @@ assert(read("app.css").includes("translate(-50%,105%)")&&read("app.css").include
 assert(!read("app.css").includes(".tn-page{width:100%;overflow:hidden}"),"mobile page must remain vertically scrollable");
 assert(!/\.tn-page\{[^}]*overflow/.test(read("app.css")),"page wrapper must not become a nested overflow container");
 assert(read("manifest.webmanifest").includes('"theme_color": "#c8102e"'),"PWA theme must use the red visual system");
+assert(html.includes("app.css?v=3.0.1")&&read("sw.js").includes("tulalip-next-v3.0.1"),"release assets must bypass the previous PWA cache");
 assert(js.indexOf('id="flyerTitle"')<js.indexOf('${safe(e.summary)}'),"original flyer must precede secondary event details");
 const box={window:{}};vm.createContext(box);vm.runInContext(read("events.js"),box);assert.equal(box.window.TULALIP_EVENTS.length,12);for(const e of box.window.TULALIP_EVENTS)for(const k of["id","title","start","end","location","category","summary","source"])assert(e[k],`${e.id||"event"} missing ${k}`);
 for(const e of box.window.TULALIP_EVENTS)assert(e.flyer,`${e.id} missing original flyer`);
