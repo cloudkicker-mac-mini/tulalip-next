@@ -5,6 +5,10 @@ assert(!html.includes("styles.css")&&!html.includes("mobile-fix.css")&&!html.inc
 assert(html.includes("assets/css/style.bundle.css")&&html.includes("assets/js/scripts.bundle.js"),"Metronic bundles missing");assert(js.includes("localStorage")&&js.includes("navigator.share")&&js.includes("buildICS"),"core interactions missing");
 assert(js.includes('searchParams.set("event",e.id)')&&js.includes("eventFromUrl"),"event shares must use durable query URLs");
 assert(!js.includes("location.pathname}#${ev.id}"),"legacy hash-only share URL still present");
+assert(html.includes('class="tn-sheet"')&&js.includes("$$('.tn-sheet')"),"event and plan details must use bottom sheets");
+assert(!html.includes('class="tn-drawer"')&&!js.includes("$$('.tn-drawer')"),"legacy side drawers must be removed");
+assert(read("app.css").includes("translate(-50%,105%)")&&read("app.css").includes("translate(-50%,0)"),"bottom sheet must animate vertically");
+assert(read("manifest.webmanifest").includes('"theme_color": "#c8102e"'),"PWA theme must use the red visual system");
 assert(js.indexOf('id="flyerTitle"')<js.indexOf('${safe(e.summary)}'),"original flyer must precede secondary event details");
 const box={window:{}};vm.createContext(box);vm.runInContext(read("events.js"),box);assert.equal(box.window.TULALIP_EVENTS.length,12);for(const e of box.window.TULALIP_EVENTS)for(const k of["id","title","start","end","location","category","summary","source"])assert(e[k],`${e.id||"event"} missing ${k}`);
 for(const e of box.window.TULALIP_EVENTS)assert(e.flyer,`${e.id} missing original flyer`);
